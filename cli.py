@@ -1,0 +1,69 @@
+"""Parser de argumentos e execução dos cenários."""
+
+import argparse
+import sys
+from typing import List
+
+from config import DEADLOCK_TIMEOUT, DEFAULT_RETRY_TIMEOUT, HOLD_TIME
+from core.logging_utils import configure_multiprocessing
+from core.metrics import Metrics, export_metrics
+from core.scenario import DeadlockScenario, OrderedScenario, RetryScenario
+
+
+def parse_args(argv: List[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Demonstração de deadlock e soluções com processos concorrentes."
+    )
+    parser.add_argument(
+        "cenario",
+        nargs="?",
+        default="todos",
+        choices=["todos", "deadlock", "ordenado", "retry"],
+        help="Qual cenário rodar (padrão: todos em sequência).",
+    )
+    parser.add_argument(
+        "--metrics-out",
+        dest="metrics_out",
+        help="Caminho para salvar métricas (JSON ou CSV).",
+    )
+    parser.add_argument(
+        "--metrics-format",
+        dest="metrics_format",
+        choices=["json", "csv"],
+        default="json",
+        help="Formato de métricas ao salvar (padrão: json).",
+    )
+    parser.add_argument(
+        "--progress",
+        action="store_true",
+        help="Exibe progresso simples de conclusão dos workers.",
+    )
+    return parser.parse_args(argv)
+
+
+def run_selected_scenarios(selected: str, metrics_out: str | None, metrics_format: str, show_progress: bool) -> None:
+    scenarios = {
+        "deadlock": DeadlockScenario(HOLD_TIME, DEADLOCK_TIMEOUT, show_progress),
+        "ordenado": OrderedScenario(HOLD_TIME, show_progress),
+        "retry": RetryScenario(HOLD_TIME, try_timeout=DEFAULT_RETRY_TIMEOUT, show_progress=show_progress),
+    }
+    all_metrics: List[Metrics] = []
+
+    if selected == "todos":
+        for key in ("deadlock", "ordenado", "retry"):
+            all_metrics.extend(scenarios[key].run())
+    else:
+        all_metrics.extend(scenarios[selected].run())
+
+    if metrics_out:
+        export_metrics(all_metrics, metrics_out, metrics_format)
+
+
+def main(argv: List[str]) -> None:
+    configure_multiprocessing()
+    args = parse_args(argv)
+    run_selected_scenarios(args.cenario, args.metrics_out, args.metrics_format, args.progress)
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
