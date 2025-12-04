@@ -22,5 +22,4 @@ def configure_multiprocessing() -> None:
         try:
             mp.set_start_method(target, force=True)
         except RuntimeError:
-            # Já inicializado com outro método; mantenha-o.
             pass

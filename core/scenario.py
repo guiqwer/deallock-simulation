@@ -29,7 +29,7 @@ class Scenario(ABC):
         metrics = collect_metrics(metrics_queue)
         for metric in metrics:
             metric["scenario"] = self.title
-            metric["cenario"] = self.scenario_tag  # rótulo curto
+            metric["cenario"] = self.scenario_tag
         self.after_finish()
         summarize_metrics(metrics, duration, [p.name for p in processes], self.scenario_tag)
         return metrics
@@ -78,7 +78,6 @@ class DeadlockScenario(Scenario):
         lock_b = mp.Lock()
         workers: List[Worker] = []
         for idx in range(self.workers):
-            # Alterna a ordem para manter o ciclo de espera circular.
             if idx % 2 == 0:
                 first_lock, first_label = lock_a, "Recurso A"
                 second_lock, second_label = lock_b, "Recurso B"

@@ -99,7 +99,7 @@ class RetryWorker(Worker):
     ) -> None:
         super().__init__(name, first_lock, first_label, second_lock, second_label, hold_time, metrics_queue)
         self.try_timeout = try_timeout
-        self._rng = random.Random(name)  # base determinista por nome
+        self._rng = random.Random(name)
 
     def run(self) -> None:
         self.record_start()
