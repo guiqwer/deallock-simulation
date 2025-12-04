@@ -14,6 +14,13 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Demonstração de deadlock e soluções com processos concorrentes."
     )
+
+    def positive_int(value: str) -> int:
+        ivalue = int(value)
+        if ivalue < 1:
+            raise argparse.ArgumentTypeError("use um inteiro >= 1 para --workers")
+        return ivalue
+
     parser.add_argument(
         "cenario",
         nargs="?",
@@ -38,14 +45,27 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         action="store_true",
         help="Exibe progresso simples de conclusão dos workers.",
     )
+    parser.add_argument(
+        "--workers",
+        "-w",
+        type=positive_int,
+        default=2,
+        help="Quantidade de processos a lançar em cada cenário (padrão: 2).",
+    )
     return parser.parse_args(argv)
 
 
-def run_selected_scenarios(selected: str, metrics_out: str | None, metrics_format: str, show_progress: bool) -> None:
+def run_selected_scenarios(
+    selected: str,
+    metrics_out: str | None,
+    metrics_format: str,
+    show_progress: bool,
+    workers: int,
+) -> None:
     scenarios = {
-        "deadlock": DeadlockScenario(HOLD_TIME, DEADLOCK_TIMEOUT, show_progress),
-        "ordenado": OrderedScenario(HOLD_TIME, show_progress),
-        "retry": RetryScenario(HOLD_TIME, try_timeout=DEFAULT_RETRY_TIMEOUT, show_progress=show_progress),
+        "deadlock": DeadlockScenario(HOLD_TIME, DEADLOCK_TIMEOUT, show_progress, workers),
+        "ordenado": OrderedScenario(HOLD_TIME, show_progress, workers),
+        "retry": RetryScenario(HOLD_TIME, try_timeout=DEFAULT_RETRY_TIMEOUT, show_progress=show_progress, workers=workers),
     }
     all_metrics: List[Metrics] = []
 
@@ -62,7 +82,7 @@ def run_selected_scenarios(selected: str, metrics_out: str | None, metrics_forma
 def main(argv: List[str]) -> None:
     configure_multiprocessing()
     args = parse_args(argv)
-    run_selected_scenarios(args.cenario, args.metrics_out, args.metrics_format, args.progress)
+    run_selected_scenarios(args.cenario, args.metrics_out, args.metrics_format, args.progress, args.workers)
 
 
 if __name__ == "__main__":

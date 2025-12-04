@@ -1,7 +1,7 @@
 # Simulação de deadlock e formas de resolver
 
 Laboratório em Python que mostra:
-- um deadlock clássico entre dois processos competindo por dois recursos;
+- um deadlock clássico entre processos competindo por dois recursos;
 - prevenção com ordenação global de locks;
 - recuperação com retry, timeout e backoff;
 - telemetria/estatísticas e exportação de métricas.
@@ -38,11 +38,14 @@ python3 main.py deadlock --progress
 # Exportar métricas
 python3 main.py retry --metrics-out logs/dados.json --metrics-format json
 python3 main.py todos --metrics-out logs/dados.csv --metrics-format csv
+
+# Ajustar quantidade de processos (padrão: 2)
+python3 main.py deadlock --workers 4 --progress
 ```
 
 ## O que observar
-- Deadlock: P1 e P2 pegam recursos em ordem inversa; o pai detecta que não terminaram em `DEADLOCK_TIMEOUT` e encerra os processos.
-- Ordem fixa: ambos obedecem A → B, removendo o ciclo de espera.
+- Deadlock: processos começam em ordem inversa (A→B / B→A); o pai detecta que não terminaram em `DEADLOCK_TIMEOUT` e encerra os processos.
+- Ordem fixa: todos obedecem A → B, removendo o ciclo de espera.
 - Retry/timeout: com ordem inversa, cada processo desiste se o segundo lock não vier rápido, libera o primeiro, espera (backoff) e tenta de novo; eventualmente um progride.
 - Resumo de métricas: duração por processo, retries (quando aplicável) e médias por cenário. Se o ambiente bloquear `multiprocessing.Queue`, a telemetria é desativada automaticamente.
 

@@ -3,7 +3,7 @@
     "name": "P1",
     "status": "ok",
     "retries": 0,
-    "duration": 1.6,
+    "duration": 1.601,
     "scenario": "CENÁRIO 2: Prevenção com ordem fixa de aquisição",
     "cenario": "CENÁRIO 2"
   },
@@ -16,19 +16,67 @@
     "cenario": "CENÁRIO 2"
   },
   {
-    "name": "P2",
+    "name": "P3",
     "status": "ok",
     "retries": 0,
-    "duration": 2.6,
-    "scenario": "CENÁRIO 3: Recuperação com timeout + backoff",
-    "cenario": "CENÁRIO 3"
+    "duration": 4.8,
+    "scenario": "CENÁRIO 2: Prevenção com ordem fixa de aquisição",
+    "cenario": "CENÁRIO 2"
   },
   {
-    "name": "P1",
+    "name": "P4",
     "status": "ok",
-    "retries": 1,
-    "duration": 4.201,
-    "scenario": "CENÁRIO 3: Recuperação com timeout + backoff",
-    "cenario": "CENÁRIO 3"
+    "retries": 0,
+    "duration": 6.4,
+    "scenario": "CENÁRIO 2: Prevenção com ordem fixa de aquisição",
+    "cenario": "CENÁRIO 2"
+  },
+  {
+    "name": "P5",
+    "status": "ok",
+    "retries": 0,
+    "duration": 8.0,
+    "scenario": "CENÁRIO 2: Prevenção com ordem fixa de aquisição",
+    "cenario": "CENÁRIO 2"
+  },
+  {
+    "name": "P6",
+    "status": "ok",
+    "retries": 0,
+    "duration": 9.599,
+    "scenario": "CENÁRIO 2: Prevenção com ordem fixa de aquisição",
+    "cenario": "CENÁRIO 2"
+  },
+  {
+    "name": "P7",
+    "status": "ok",
+    "retries": 0,
+    "duration": 11.199,
+    "scenario": "CENÁRIO 2: Prevenção com ordem fixa de aquisição",
+    "cenario": "CENÁRIO 2"
+  },
+  {
+    "name": "P8",
+    "status": "ok",
+    "retries": 0,
+    "duration": 12.799,
+    "scenario": "CENÁRIO 2: Prevenção com ordem fixa de aquisição",
+    "cenario": "CENÁRIO 2"
+  },
+  {
+    "name": "P9",
+    "status": "ok",
+    "retries": 0,
+    "duration": 14.399,
+    "scenario": "CENÁRIO 2: Prevenção com ordem fixa de aquisição",
+    "cenario": "CENÁRIO 2"
+  },
+  {
+    "name": "P10",
+    "status": "ok",
+    "retries": 0,
+    "duration": 15.999,
+    "scenario": "CENÁRIO 2: Prevenção com ordem fixa de aquisição",
+    "cenario": "CENÁRIO 2"
   }
 ]
