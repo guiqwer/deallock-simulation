@@ -7,7 +7,7 @@ from typing import List
 from config import DEADLOCK_TIMEOUT, DEFAULT_RETRY_TIMEOUT, HOLD_TIME
 from core.logging_utils import configure_multiprocessing
 from core.metrics import Metrics, export_metrics
-from core.scenario import DeadlockScenario, OrderedScenario, RetryScenario
+from core.scenario import BankerScenario, DeadlockScenario, OrderedScenario, RetryScenario
 
 
 def parse_args(argv: List[str]) -> argparse.Namespace:
@@ -25,7 +25,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         "cenario",
         nargs="?",
         default="todos",
-        choices=["todos", "deadlock", "ordenado", "retry"],
+        choices=["todos", "deadlock", "ordenado", "retry", "banqueiro"],
         help="Qual cenário rodar (padrão: todos em sequência).",
     )
     parser.add_argument(
@@ -66,11 +66,12 @@ def run_selected_scenarios(
         "deadlock": DeadlockScenario(HOLD_TIME, DEADLOCK_TIMEOUT, show_progress, workers),
         "ordenado": OrderedScenario(HOLD_TIME, show_progress, workers),
         "retry": RetryScenario(HOLD_TIME, try_timeout=DEFAULT_RETRY_TIMEOUT, show_progress=show_progress, workers=workers),
+        "banqueiro": BankerScenario(HOLD_TIME, show_progress, workers),
     }
     all_metrics: List[Metrics] = []
 
     if selected == "todos":
-        for key in ("deadlock", "ordenado", "retry"):
+        for key in ("deadlock", "ordenado", "retry", "banqueiro"):
             all_metrics.extend(scenarios[key].run())
     else:
         all_metrics.extend(scenarios[selected].run())

@@ -2,10 +2,12 @@
 
 import multiprocessing as mp
 import random
+import threading
 import time
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import List, Optional
 
+from core.banker import Banker
 from core.logging_utils import log
 from core.metrics import Metrics
 
@@ -130,6 +132,86 @@ class RetryWorker(Worker):
                 self.first_lock.release()
                 sleep_for = self.hold_time / 2 + self._rng.uniform(0, self.hold_time / 2)
                 time.sleep(sleep_for)
+        except Exception:
+            self.record_end("erro")
+            raise
+
+
+class BankerWorker(Worker):
+    """Worker que negocia recursos com o algoritmo do banqueiro."""
+
+    def __init__(
+        self,
+        name: str,
+        banker: Banker,
+        process_id: int,
+        claim: List[int],
+        resource_labels: List[str],
+        hold_time: float,
+        metrics_queue: Optional[mp.Queue] = None,
+    ) -> None:
+        # Locks são apenas placeholders para compatibilidade com a superclasse.
+        super().__init__(
+            name,
+            threading.Lock(),
+            resource_labels[0],
+            threading.Lock(),
+            resource_labels[1],
+            hold_time,
+            metrics_queue,
+        )
+        self.banker = banker
+        self.process_id = process_id
+        self.claim = claim
+        self.resource_labels = resource_labels
+        self.wait_between_attempts = max(0.2, hold_time / 2)
+        self._rng = random.Random(name)
+
+    def _build_request(self, remaining: List[int]) -> List[int]:
+        """Gera um pedido parcial para evitar monopolizar tudo de uma vez."""
+        request: List[int] = []
+        for need in remaining:
+            if need <= 0:
+                request.append(0)
+                continue
+            request.append(self._rng.randint(1, need))
+        if all(value == 0 for value in request):
+            idx = self._rng.randrange(len(remaining))
+            request[idx] = 1
+        return request
+
+    def run(self) -> None:
+        self.record_start()
+        remaining = list(self.claim)
+        try:
+            while True:
+                request = self._build_request(remaining)
+                granted = self.banker.request_resources(self.process_id, request)
+                if granted:
+                    remaining = [max(need - req, 0) for need, req in zip(remaining, request)]
+                    snapshot = self.banker.snapshot()
+                    alloc = snapshot["allocation"][self.process_id]
+                    available = snapshot["available"]
+                    self.log(
+                        f"pedido {request} concedido; alocação={alloc} "
+                        f"disponível={available}"
+                    )
+                    if all(value == 0 for value in remaining):
+                        self.log("atingiu a necessidade máxima, executando trabalho")
+                        time.sleep(self.hold_time)
+                        released = self.banker.release_all(self.process_id)
+                        self.log(f"liberou recursos {released}")
+                        self.record_end("ok")
+                        break
+                    time.sleep(self.hold_time / 3)
+                    continue
+
+                self.increment_retry()
+                self.log(
+                    f"pedido {request} negado (estado inseguro ou sem recursos), "
+                    f"esperando {self.wait_between_attempts:.2f}s"
+                )
+                time.sleep(self.wait_between_attempts + self._rng.uniform(0, self.hold_time / 2))
         except Exception:
             self.record_end("erro")
             raise
