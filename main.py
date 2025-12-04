@@ -5,7 +5,7 @@ import sys
 from cli import main as cli_main
 
 PRESET_ARGS: list[str] | None = [
-    "deadlock", # parametros: deadlock || ordenado || retry || banqueiro
+    "deadlock", # parametros: deadlock || ordenado || retry || banqueiro || todos
     "--workers",
     "10", # quantidade de processos
     "--progress",
