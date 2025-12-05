@@ -29,6 +29,26 @@ class MetricsCollector:
     def record_deadlock(self) -> None:
         self.deadlocks += 1
 
+    def as_dict(self, processes: List[Process]) -> dict:
+        total_wait_steps = sum(p.waiting_steps for p in processes)
+        blocked_processes = [p for p in processes if p.waiting_steps > 0]
+        avg_wait = total_wait_steps / len(blocked_processes) if blocked_processes else 0.0
+        blocked_pct = (
+            self.blocked_steps / (max(1, self.steps) * len(processes)) * 100
+            if processes
+            else 0.0
+        )
+        return {
+            "mode": self.mode,
+            "processes": self.num_processes,
+            "resources": self.num_resources,
+            "steps_executed": self.steps,
+            "completed_processes": self.completed,
+            "deadlocks_detected": self.deadlocks,
+            "average_waiting_time": round(avg_wait, 2),
+            "time_blocked_pct": round(blocked_pct, 1),
+        }
+
     def summary(self, processes: List[Process]) -> str:
         total_wait_steps = sum(p.waiting_steps for p in processes)
         blocked_processes = [p for p in processes if p.waiting_steps > 0]
