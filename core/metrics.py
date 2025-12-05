@@ -58,9 +58,9 @@ def summarize_metrics(metrics: List[Metrics], duration: float, process_names: Li
         valid = [n for n in numbers if n is not None]
         return sum(valid) / len(valid) if valid else None
 
-    avg_retries = average([metric.get("retries") for metric in metrics if isinstance(metric.get("retries"), (int, float))])  # type: ignore[arg-type]
-    avg_duration = average([metric.get("duration") for metric in metrics if isinstance(metric.get("duration"), (int, float))])  # type: ignore[arg-type]
-    avg_wait_time = average([metric.get("wait_time") for metric in metrics if isinstance(metric.get("wait_time"), (int, float))])  # type: ignore[arg-type]
+    avg_retries = average([metric.get("retries") for metric in metrics if isinstance(metric.get("retries"), (int, float))])
+    avg_duration = average([metric.get("duration") for metric in metrics if isinstance(metric.get("duration"), (int, float))])
+    avg_wait_time = average([metric.get("wait_time") for metric in metrics if isinstance(metric.get("wait_time"), (int, float))])
     if avg_retries is not None:
         print(f"[{scenario_tag}] Média de retries: {avg_retries:.1f}")
     if avg_duration is not None:

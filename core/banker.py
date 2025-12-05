@@ -52,7 +52,6 @@ class Banker:
                 "max_claims": [list(row) for row in self.max_claims],
             }
 
-    # Métodos auxiliares (não expostos publicamente) ------------------------
 
     def _within_need(self, pid: int, request: List[int]) -> bool:
         need = self._need_for(pid)
